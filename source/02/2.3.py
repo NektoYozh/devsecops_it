@@ -1,6 +1,6 @@
-answer = input("Is it raining? ")
-
-if answer.lower == "yes":
+answer = str(input("Is it raining? "))
+print(answer)
+if answer.lower() == "yes":
     answer = input("Is it windy? ")
     if answer.lower() == 'yes':
         print("It is too windy for an umbrella")

@@ -1,13 +1,13 @@
 import datetime
 from datetime import datetime, time
 
-#started_at = datetime.strptime(input('Введите время начала разговора в формате %Y-%m-%d %H:%M:%S: '), "%Y-%m-%d %H:%M:%S")
-#ended_at = datetime.strptime(input('Введите время окончания разговора в формате %Y-%m-%d %H:%M:%S: '), "%Y-%m-%d %H:%M:%S")
-#price = float(input('Введите стоимость одной секунды разговора: '))
+started_at = datetime.strptime(input('Введите время начала разговора в формате %Y-%m-%d %H:%M:%S: '), "%Y-%m-%d %H:%M:%S")
+ended_at = datetime.strptime(input('Введите время окончания разговора в формате %Y-%m-%d %H:%M:%S: '), "%Y-%m-%d %H:%M:%S")
+price = float(input('Введите стоимость одной секунды разговора: '))
 
-started_at = datetime.strptime('2025-04-06 23:59:50', "%Y-%m-%d %H:%M:%S")
-ended_at = datetime.strptime('2025-04-07 00:00:10', "%Y-%m-%d %H:%M:%S")
-price = 10
+#started_at = datetime.strptime('2025-04-06 23:59:50', "%Y-%m-%d %H:%M:%S")
+#ended_at = datetime.strptime('2025-04-07 00:00:10', "%Y-%m-%d %H:%M:%S")
+#price = 10
 
 if ended_at.time() > started_at.time():
     duration = (ended_at - started_at).seconds
