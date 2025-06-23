@@ -1,0 +1,111 @@
+ hosts: webservers
+  user: administrator
+  become: yes
+  vars_files:
+    - vars/secrets.yml
+
+  tasks:
+
+    # Ubuntu
+    # https://www.8host.com/blog/ustanovka-lamp-stack-na-ubuntu-14-04/
+
+    - name: Ubuntu. Update & Upgrade packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Ubuntu. Install Apache2 & MySql
+      apt:
+        name: ['apache2', 'mysql-server', 'libapache2-mod-auth-mysql', 'php5-mysql', 'python-mysqldb']
+        state: latest
+      when: ansible_distribution == 'Ubuntu'
+	  
+    - name: Ubuntu. Start Apache2 & MySql
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - apache2
+        - mysql
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Ubuntu. MySQL root password change
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password}}"
+        host: localhost
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      when: ansible_distribution == 'Ubuntu'
+	  
+   - name: Ubuntu. PHP change config
+      replace:
+        path: /etc/apache2/mods-enabled/dir.conf
+        regexp: 'DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm'
+        replace: 'DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm'
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Ubuntu. Restart Apache
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_distribution == "Ubuntu"
+
+    # CentOS
+    # https://www.8host.com/blog/ustanovka-lamp-stack-na-centos-7/
+
+    - name: CentOS. Fix repos (part 1)
+      shell: sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/CentOS*
+      when: ansible_distribution == 'CentOS'
+
+    - name: CentOS. Fix repos (part 2)
+      shell: sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/CentOS*
+      when: ansible_distribution == 'CentOS'
+    - name: Ubuntu. Install PHP
+      apt:
+        name: ["php5", "libapache2-mod-php5", "php5-mcrypt"]
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+	  
+    - name: CentOS. Fix repos (part 3)
+      shell: sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/CentOS*
+      when: ansible_distribution == 'CentOS'
+
+    - name: CentOS. Install Apache & MariaDB
+      yum:
+        name: ['httpd', 'mariadb-server', 'mariadb', 'python3-PyMySQL', 'MySQL-python']
+        state: latest
+      when: ansible_distribution == 'CentOS'
+
+    - name: CentOS. Start Apache & MariaDB
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - httpd
+        - mariadb
+      when: ansible_distribution == 'CentOS'
+	  
+    - name: CentOS. MariaDB root password change
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password}}"
+        host: localhost
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      when: ansible_distribution == 'CentOS'
+
+    - name: CentOS. Install PHP
+      yum:
+        name: ['php', 'php-mysql']
+        state: latest
+      when: ansible_distribution == 'CentOS'
+
+    - name: CentOS. Restart Apache
+      service:
+        name: httpd
+        state: restarted
+      when: ansible_distribution == 'CentOS'
